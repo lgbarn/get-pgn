@@ -1,3 +1,7 @@
-= Luther Barnum
+= Get PGN
+Luther Barnum
+v1.0, 2018-10-30
+:toc:
+:imagesdir: images
 
-== This program is designed to utilize the api from chess.com to download all of a user's games into pgns.
+This program is designed to utilize the api from chess.com to download all of a user's games into pgns.
