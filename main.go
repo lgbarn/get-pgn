@@ -4,26 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	//"net/http"
-	"os"
+	"net/http"
 )
 
-// https://api.chess.com/pub/player/<player>
-type Player struct {
-	Avatar     string `json:"avatar"`
-	PlayerID   int    `json:"player_id"`
-	ID         string `json:"@id"`
-	URL        string `json:"url"`
-	Name       string `json:"name"`
-	Username   string `json:"username"`
-	Followers  int    `json:"followers"`
-	Country    string `json:"country"`
-	Location   string `json:"location"`
-	LastOnline int    `json:"last_online"`
-	Joined     int    `json:"joined"`
-	Status     string `json:"status"`
-	IsStreamer bool   `json:"is_streamer"`
-}
 
 // https://api.chess.com/pub/player/<player>/games/archives
 type MonthlyArchives struct {
@@ -56,45 +39,28 @@ type PlayerGames struct {
 	} `json:"games"`
 }
 
-type URLStatus struct {
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-}
-
-
-
 func main() {
-	//var monthlyarchives MonthlyArchives
+	var monthlyarchives MonthlyArchives
 	var mygames PlayerGames
-	
-	/* Commented temporaily while working on section below
+
 	response, err := http.Get("https://api.chess.com/pub/player/lgbarn/games/archives")
-	 if err != nil {
+	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-	} 
-	
+	}
 	defer response.Body.Close()
-	
 	data, _ := ioutil.ReadAll(response.Body)
-	//fmt.Println(string(data))
 	json.Unmarshal([]byte(data), &monthlyarchives)
 
 	for _, archive := range monthlyarchives.Archives {
-	  fmt.Printf("%s\n", string(archive))
-	}
-*/
-	jsonFile, err := os.Open("games_2010_05.json")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Successfully opened games_2010_05.json")
-	defer jsonFile.Close()
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	json.Unmarshal(byteValue, &mygames)
-
-	for _, game := range mygames.Games {
-		fmt.Printf("%s\n\n", string(game.Pgn))
+		response, err := http.Get(archive)
+		if err != nil {
+			fmt.Printf("The HTTP request failed with error %s\n", err)
+		}
+		defer response.Body.Close()
+		data, _ := ioutil.ReadAll(response.Body)
+		json.Unmarshal(data, &mygames)
+		for _, game := range mygames.Games {
+			fmt.Printf("%s\n\n", string(game.Pgn))
+		}
 	}
 }
