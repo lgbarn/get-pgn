@@ -1,0 +1,3 @@
+= Luther Barnum
+
+== This program is designed to utilize the api from chess.com to download all of a user's games into pgns.
