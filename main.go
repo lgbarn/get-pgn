@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
+	//"net/http"
+	"os"
 )
 
 // https://api.chess.com/pub/player/<player>
@@ -62,11 +64,37 @@ type URLStatus struct {
 
 
 func main() {
-	response, err := http.Get("https://api.chess.com/pub/player/lgbarn")
+	//var monthlyarchives MonthlyArchives
+	var mygames PlayerGames
+	
+	/* Commented temporaily while working on section below
+	response, err := http.Get("https://api.chess.com/pub/player/lgbarn/games/archives")
+	 if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	} 
+	
+	defer response.Body.Close()
+	
+	data, _ := ioutil.ReadAll(response.Body)
+	//fmt.Println(string(data))
+	json.Unmarshal([]byte(data), &monthlyarchives)
+
+	for _, archive := range monthlyarchives.Archives {
+	  fmt.Printf("%s\n", string(archive))
+	}
+*/
+	jsonFile, err := os.Open("games_2010_05.json")
 	if err != nil {
-		fmt.Print("The HTTP request failed with error %s\n", err)
-	} else {
-		data, _ := ioutil.ReadAll(response.Body)
-		fmt.Println(string(data))
+		fmt.Println(err)
+	}
+	fmt.Println("Successfully opened games_2010_05.json")
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	json.Unmarshal(byteValue, &mygames)
+
+	for _, game := range mygames.Games {
+		fmt.Printf("%s\n\n", string(game.Pgn))
 	}
 }
