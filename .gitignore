@@ -1,3 +1,5 @@
 get-pgn
 *.json
 *.pgn
+*.exe
+*.zip
