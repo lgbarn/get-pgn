@@ -19,9 +19,10 @@ func main() {
 	var monthlyarchives MonthlyArchives
 	var CurrPlayer string
 	var UseSingleFile bool
+	var getLastMonth bool
 
 	flag.StringVar(&CurrPlayer, "p", "", "Player to get pgn games")
-	//flag.BoolVar(&UseMonthlyFiles, "monthly", false, "Save to monthly files")
+    flag.BoolVar(&getLastMonth, "l", false, "Get last month of pgn games")
 	flag.BoolVar(&UseSingleFile, "s", false, "Save to a single file")
 	flag.Parse()
 	if CurrPlayer == "" {
@@ -38,12 +39,17 @@ func main() {
 	data, _ := ioutil.ReadAll(response.Body)
 	json.Unmarshal([]byte(data), &monthlyarchives)
 
-	for _, archive := range monthlyarchives.Archives {
+	if getLastMonth {
+		newArchive := monthlyarchives.Archives[len(monthlyarchives.Archives)-1]
+		monthlyarchives.Archives = nil
+		monthlyarchives.Archives = append(monthlyarchives.Archives,newArchive[:])
+	}
 
+	for _, archive := range monthlyarchives.Archives {		
 		splitArchive := strings.Split(string(archive), "/")
 		year := splitArchive[7]
 		month := splitArchive[8]
-		fmt.Printf("Downloading files from %s/%s for %s\n", month, year, CurrPlayer)
+		fmt.Printf("Downloading games from %s/%s for %s\n", month, year, CurrPlayer)
 
 		if !UseSingleFile {
 			currFile = (CurrPlayer + "_" + year + "-" + month + ".pgn")
