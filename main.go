@@ -22,7 +22,7 @@ func main() {
 	var getLastMonth bool
 
 	flag.StringVar(&CurrPlayer, "p", "", "Player to get pgn games")
-    flag.BoolVar(&getLastMonth, "l", false, "Get last month of pgn games")
+	flag.BoolVar(&getLastMonth, "l", false, "Get last month of pgn games")
 	flag.BoolVar(&UseSingleFile, "s", false, "Save to a single file")
 	flag.Parse()
 	if CurrPlayer == "" {
@@ -42,10 +42,10 @@ func main() {
 	if getLastMonth {
 		newArchive := monthlyarchives.Archives[len(monthlyarchives.Archives)-1]
 		monthlyarchives.Archives = nil
-		monthlyarchives.Archives = append(monthlyarchives.Archives,newArchive[:])
+		monthlyarchives.Archives = append(monthlyarchives.Archives, newArchive[:])
 	}
 
-	for _, archive := range monthlyarchives.Archives {		
+	for _, archive := range monthlyarchives.Archives {
 		splitArchive := strings.Split(string(archive), "/")
 		year := splitArchive[7]
 		month := splitArchive[8]
