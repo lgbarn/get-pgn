@@ -3,3 +3,4 @@ get-pgn
 *.pgn
 *.exe
 *.zip
+.vscode
