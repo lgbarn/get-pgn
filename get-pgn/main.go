@@ -33,18 +33,6 @@ func (MonthlyArchives *monthlyArchives) getArchiveList() []string {
 	return MonthlyArchives.Archives
 }
 
-// reverseArchiveList returns archive links in reverse order
-func (MonthlyArchives *monthlyArchives) reverseArchiveList() []string {
-	var archiveList []string
-
-	archiveList = append(archiveList, MonthlyArchives.Archives...)
-	for i := len(archiveList)/2 - 1; i >= 0; i-- {
-		opp := len(archiveList) - 1 - i
-		archiveList[i], archiveList[opp] = archiveList[opp], archiveList[i]
-	}
-	return archiveList
-}
-
 func (MonthlyArchives *monthlyArchives) constructArchive(data []uint8) {
 	newData := []byte(data)
 	err := json.Unmarshal(newData, MonthlyArchives)
