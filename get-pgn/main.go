@@ -10,31 +10,46 @@ import (
 	"strings"
 )
 
+type ArchiveReader interface {
+	getArchiveList() []string
+}
+
+type ArchiveConstructer interface {
+	constructArchive(data string) error
+}
+
 // monthlyArchives https://api.chess.com/pub/player/<player>/games/archives
 type monthlyArchives struct {
 	Archives []string `json:"archives"`
 }
 
 // getArchiveList returns a list of achive links
-func (MonthlyArchives *monthlyArchives) getArchiveList() []string {
+func (MonthlyArchives monthlyArchives) getArchiveList() []string {
 	var archiveList []string
-	for _, archive := range MonthlyArchives.Archives {
-		archiveList = append(archiveList, archive)
-	}
-	return archiveList
+
+	return append(archiveList, MonthlyArchives.Archives...)
+
 }
 
 // reverseArchiveList returns archive links in reverse order
 func (MonthlyArchives *monthlyArchives) reverseArchiveList() []string {
 	var archiveList []string
-	for _, archive := range MonthlyArchives.Archives {
-		archiveList = append(archiveList, archive)
-	}
+
+	archiveList = append(archiveList, MonthlyArchives.Archives...)
 	for i := len(archiveList)/2 - 1; i >= 0; i-- {
 		opp := len(archiveList) - 1 - i
 		archiveList[i], archiveList[opp] = archiveList[opp], archiveList[i]
 	}
 	return archiveList
+}
+
+func (MonthlyArchives *monthlyArchives) constructArchive(data []uint8) {
+	newData := []byte(data)
+
+	err := json.Unmarshal(newData, &MonthlyArchives)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // getLastXof get X number months
@@ -75,8 +90,16 @@ func main() {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}
 	defer response.Body.Close()
-	data, _ := ioutil.ReadAll(response.Body)
-	json.Unmarshal([]byte(data), &monthlyarchives)
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
+	//fmt.Printf("data is type %T\n",data)
+	//byteData := [byte(data)]
+	err = json.Unmarshal([]byte(data), &monthlyarchives)
+	if err != nil {
+		panic(err)
+	}
 
 	if getLastMonth > 0 {
 		if getLastMonth > len(monthlyarchives.Archives) {
@@ -87,7 +110,7 @@ func main() {
 	}
 
 	for _, archive := range monthlyarchives.Archives {
-		splitArchive := strings.Split(string(archive), "/")
+		splitArchive := strings.Split(archive, "/")
 		year := splitArchive[7]
 		month := splitArchive[8]
 		fmt.Printf("Downloading games from %s/%s for %s\n", month, year, CurrPlayer)
@@ -100,13 +123,20 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		defer f.Close()
+		if f != nil {
+			defer f.Close()
+		}
 		response, err := http.Get(archive + "/pgn")
 		if err != nil {
 			fmt.Printf("The HTTP request failed with error %s\n", err)
 		}
-		defer response.Body.Close()
-		data, _ := ioutil.ReadAll(response.Body)
+		if response != nil {
+			defer response.Body.Close()
+		}
+		data, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			panic(err)
+		}
 		_, err = f.WriteString(string(data) + "\n")
 		if err != nil {
 			panic(err)
