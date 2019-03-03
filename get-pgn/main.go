@@ -28,7 +28,6 @@ func (MonthlyArchives monthlyArchives) getArchiveList() []string {
 	var archiveList []string
 
 	return append(archiveList, MonthlyArchives.Archives...)
-
 }
 
 // reverseArchiveList returns archive links in reverse order
@@ -94,8 +93,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	//fmt.Printf("data is type %T\n",data)
-	//byteData := [byte(data)]
+
 	err = json.Unmarshal([]byte(data), &monthlyarchives)
 	if err != nil {
 		panic(err)
