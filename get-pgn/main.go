@@ -10,6 +10,19 @@ import (
 	"strings"
 )
 
+type ArchiveReader interface {
+	getArchiveList() []string
+}
+
+type ArchiveConstructer interface {
+	constructArchive(data []uint8)
+}
+
+type ArchiveConstructorReader interface {
+	ArchiveConstructer
+	ArchiveReader
+}
+
 // monthlyArchives https://api.chess.com/pub/player/<player>/games/archives
 type monthlyArchives struct {
 	Archives []string `json:"archives"`
@@ -17,24 +30,15 @@ type monthlyArchives struct {
 
 // getArchiveList returns a list of achive links
 func (MonthlyArchives *monthlyArchives) getArchiveList() []string {
-	var archiveList []string
-	for _, archive := range MonthlyArchives.Archives {
-		archiveList = append(archiveList, archive)
-	}
-	return archiveList
+	return MonthlyArchives.Archives
 }
 
-// reverseArchiveList returns archive links in reverse order
-func (MonthlyArchives *monthlyArchives) reverseArchiveList() []string {
-	var archiveList []string
-	for _, archive := range MonthlyArchives.Archives {
-		archiveList = append(archiveList, archive)
+func (MonthlyArchives *monthlyArchives) constructArchive(data []uint8) {
+	newData := []byte(data)
+	err := json.Unmarshal(newData, MonthlyArchives)
+	if err != nil {
+		panic(err)
 	}
-	for i := len(archiveList)/2 - 1; i >= 0; i-- {
-		opp := len(archiveList) - 1 - i
-		archiveList[i], archiveList[opp] = archiveList[opp], archiveList[i]
-	}
-	return archiveList
 }
 
 // getLastXof get X number months
@@ -55,10 +59,11 @@ func getLastXof(number int, inList []string) []string {
 }
 
 func main() {
-	var monthlyarchives monthlyArchives
 	var CurrPlayer string
 	var UseSingleFile bool
 	var getLastMonth int
+
+	var acr ArchiveConstructorReader = &monthlyArchives{}
 
 	flag.StringVar(&CurrPlayer, "p", "", "Player to get pgn games")
 	flag.IntVar(&getLastMonth, "l", 0, "Get last month of pgn games")
@@ -75,38 +80,47 @@ func main() {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}
 	defer response.Body.Close()
-	data, _ := ioutil.ReadAll(response.Body)
-	json.Unmarshal([]byte(data), &monthlyarchives)
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
+	acr.constructArchive(data)
 
 	if getLastMonth > 0 {
-		if getLastMonth > len(monthlyarchives.Archives) {
-			getLastMonth = len(monthlyarchives.Archives)
+		if getLastMonth > len(acr.getArchiveList()) {
+			getLastMonth = len(acr.getArchiveList())
 			fmt.Printf("Only %d Number of months are available, returning %d number of months instead\n", getLastMonth, getLastMonth)
 		}
-		monthlyarchives.Archives = getLastXof(getLastMonth, monthlyarchives.getArchiveList())
 	}
 
-	for _, archive := range monthlyarchives.Archives {
-		splitArchive := strings.Split(string(archive), "/")
+	for _, archive := range getLastXof(getLastMonth, acr.getArchiveList()) {
+		splitArchive := strings.Split(archive, "/")
 		year := splitArchive[7]
 		month := splitArchive[8]
 		fmt.Printf("Downloading games from %s/%s for %s\n", month, year, CurrPlayer)
 
 		if !UseSingleFile {
-			currFile = (CurrPlayer + "_" + year + "-" + month + ".pgn")
+			currFile = CurrPlayer + "_" + year + "-" + month + ".pgn"
 		}
 		fmt.Println(currFile)
 		f, err := os.OpenFile(currFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 		if err != nil {
 			panic(err)
 		}
-		defer f.Close()
+		if f != nil {
+			defer f.Close()
+		}
 		response, err := http.Get(archive + "/pgn")
 		if err != nil {
 			fmt.Printf("The HTTP request failed with error %s\n", err)
 		}
-		defer response.Body.Close()
-		data, _ := ioutil.ReadAll(response.Body)
+		if response != nil {
+			defer response.Body.Close()
+		}
+		data, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			panic(err)
+		}
 		_, err = f.WriteString(string(data) + "\n")
 		if err != nil {
 			panic(err)
