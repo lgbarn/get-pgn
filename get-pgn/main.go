@@ -58,50 +58,19 @@ func getLastXof(number int, inList []string) []string {
 	return outList
 }
 
-func main() {
-	var CurrPlayer string
-	var UseSingleFile bool
-	var getLastMonth int
-
-	var acr ArchiveConstructorReader = &monthlyArchives{}
-
-	flag.StringVar(&CurrPlayer, "p", "", "Player to get pgn games")
-	flag.IntVar(&getLastMonth, "l", 0, "Get last month of pgn games")
-	flag.BoolVar(&UseSingleFile, "s", false, "Save to a single file")
-	flag.Parse()
-	if CurrPlayer == "" {
-		flag.PrintDefaults()
-		os.Exit(0)
-	}
-
-	var currFile = CurrPlayer + ".pgn"
-	response, err := http.Get("https://api.chess.com/pub/player/" + CurrPlayer + "/games/archives")
-	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
-	}
-	defer response.Body.Close()
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		panic(err)
-	}
-	acr.constructArchive(data)
-
+func checkMonthsAvailable(getLastMonth int, acr ArchiveConstructorReader) int {
 	if getLastMonth > 0 {
 		if getLastMonth > len(acr.getArchiveList()) {
 			getLastMonth = len(acr.getArchiveList())
-			fmt.Printf("Only %d Number of months are available, returning %d number of months instead\n", getLastMonth, getLastMonth)
+			fmt.Printf("Downloading %d months of archived games\n", getLastMonth)
 		}
 	}
+	return getLastMonth
+}
 
+func writePGNFiles(getLastMonth int, acr ArchiveConstructorReader, currFile string, CurrPlayer string, UseSingleFile bool) {
 	for _, archive := range getLastXof(getLastMonth, acr.getArchiveList()) {
-		splitArchive := strings.Split(archive, "/")
-		year := splitArchive[7]
-		month := splitArchive[8]
-		fmt.Printf("Downloading games from %s/%s for %s\n", month, year, CurrPlayer)
-
-		if !UseSingleFile {
-			currFile = CurrPlayer + "_" + year + "-" + month + ".pgn"
-		}
+		currFile = getFileName(archive, CurrPlayer, UseSingleFile, currFile)
 		fmt.Println(currFile)
 		f, err := os.OpenFile(currFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 		if err != nil {
@@ -127,3 +96,57 @@ func main() {
 		}
 	}
 }
+
+func getFileName(archive string, CurrPlayer string, UseSingleFile bool, currFile string) string {
+	splitArchive := strings.Split(archive, "/")
+	year := splitArchive[7]
+	month := splitArchive[8]
+	fmt.Printf("Downloading games from %s/%s for %s\n", month, year, CurrPlayer)
+	if !UseSingleFile {
+		currFile = CurrPlayer + "_" + year + "-" + month + ".pgn"
+	}
+	return currFile
+}
+
+func getPlayerData(CurrPlayer string) []byte {
+	response, err := http.Get("https://api.chess.com/pub/player/" + CurrPlayer + "/games/archives")
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	}
+	defer response.Body.Close()
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
+	return data
+}
+
+
+func main() {
+	var CurrPlayer string
+	var UseSingleFile bool
+	var getLastMonth int
+
+	var acr ArchiveConstructorReader = &monthlyArchives{}
+
+	flag.StringVar(&CurrPlayer, "p", "", "Player to get pgn games")
+	flag.IntVar(&getLastMonth, "l", 9999, "Get last month of pgn games")
+	flag.BoolVar(&UseSingleFile, "s", false, "Save to a single file")
+	flag.Parse()
+	if CurrPlayer == "" {
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+
+	var currFile = CurrPlayer + ".pgn"
+	playerData := getPlayerData(CurrPlayer)
+	acr.constructArchive(playerData)
+
+	getLastMonth = checkMonthsAvailable(getLastMonth, acr)
+
+	fmt.Print(getLastMonth)
+
+	writePGNFiles(getLastMonth, acr, currFile, CurrPlayer, UseSingleFile)
+}
+
+
