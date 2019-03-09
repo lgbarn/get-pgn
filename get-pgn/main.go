@@ -29,13 +29,13 @@ type monthlyArchives struct {
 }
 
 // getArchiveList returns a list of achive links
-func (MonthlyArchives *monthlyArchives) getArchiveList() []string {
-	return MonthlyArchives.Archives
+func (ma *monthlyArchives) getArchiveList() []string {
+	return ma.Archives
 }
 
-func (MonthlyArchives *monthlyArchives) constructArchive(data []uint8) {
+func (ma *monthlyArchives) constructArchive(data []uint8) {
 	newData := []byte(data)
-	err := json.Unmarshal(newData, MonthlyArchives)
+	err := json.Unmarshal(newData, ma)
 	if err != nil {
 		panic(err)
 	}
@@ -142,9 +142,10 @@ func main() {
 	playerData := getPlayerData(CurrPlayer)
 	acr.constructArchive(playerData)
 
+	//fmt.Printf("%V \n", acr)
+	//fmt.Printf("%d \n", getLastMonth)
 	getLastMonth = checkMonthsAvailable(getLastMonth, acr)
 
-	fmt.Print(getLastMonth)
 
 	writePGNFiles(getLastMonth, acr, currFile, CurrPlayer, UseSingleFile)
 }
