@@ -141,12 +141,7 @@ func main() {
 	var currFile = CurrPlayer + ".pgn"
 	playerData := getPlayerData(CurrPlayer)
 	acr.constructArchive(playerData)
-
-	//fmt.Printf("%V \n", acr)
-	//fmt.Printf("%d \n", getLastMonth)
 	getLastMonth = checkMonthsAvailable(getLastMonth, acr)
-
-
 	writePGNFiles(getLastMonth, acr, currFile, CurrPlayer, UseSingleFile)
 }
 
