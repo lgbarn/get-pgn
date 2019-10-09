@@ -1,10 +1,14 @@
+SUBDIRS = get-li-pgn get-pgn
+
 .PHONY : all
-all:
-	cd get-li-pgn && make $@
-	cd get-pgn && make $@
+all: ${SUBDIRS}
+
+.PHONY : ${SUBDIRS}
+${SUBDIRS}:
+	${MAKE} -C $@
 
 .PHONY : clean
 clean:
-	cd get-li-pgn && make $@
-	cd get-pgn && make $@
-
+	for dir in ${SUBDIRS}; do \
+		${MAKE} -C $${dir} clean; \
+	done
