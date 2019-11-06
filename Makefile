@@ -1,11 +1,19 @@
 SUBDIRS = get-li-pgn get-pgn
 
+.PHONY : default
+default: 
+	for dir in ${SUBDIRS}; do \
+		${MAKE} -C $${dir} ; \
+	done
+
 .PHONY : all
-all: ${SUBDIRS}
+all: 
+	for dir in ${SUBDIRS}; do \
+		${MAKE} -C $${dir} all; \
+	done
 
 .PHONY : ${SUBDIRS}
 ${SUBDIRS}:
-	${MAKE} -C $@
 
 .PHONY : clean
 clean:
