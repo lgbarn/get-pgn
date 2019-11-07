@@ -1,19 +1,19 @@
 # Variable section
+BINARY := get-li-pgn
+.DEFAULT_GOAL := release
+PLATFORMS := windows linux darwin
 GOBUILD=go build
 BINDIR=../bin/
 GOTGT=-o $(BINDIR)$@ .
+os = $(word 1, $@)
 
-.PHONY: all
-all: $(BINDIR)get-li-pgn.darwin $(BINDIR)get-li-pgn.linux $(BINDIR)get-li-pgn.exe
+.PHONY: $(PLATFORMS)
+$(PLATFORMS): 
+	mkdir -p ../bin
+	GOOS=$(os) GOARCH=amd64 go build -o ../bin/$(BINARY)-$(os)-amd64
 
-$(BINDIR)get-li-pgn.darwin: main.go
-	GOOS=darwin ${GOBUILD} ${GOTGT}
-
-$(BINDIR)get-li-pgn.linux: main.go
-	GOOS=linux ${GOBUILD} ${GOTGT}
-
-$(BINDIR)get-li-pgn.exe: main.go
-	GOOS=windows ${GOBUILD} ${GOTGT}
+.PHONY: release
+release: windows linux darwin
 
 .PHONY: clean
 clean:
