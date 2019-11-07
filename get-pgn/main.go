@@ -15,7 +15,7 @@ type ArchiveReader interface {
 	getArchiveList() []string
 }
 
-// ArchiveConstructor interface
+// ArchiveConstructer interface
 type ArchiveConstructer interface {
 	constructArchive(data []uint8)
 }
