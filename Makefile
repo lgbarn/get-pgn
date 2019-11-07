@@ -20,3 +20,8 @@ clean:
 	for dir in ${SUBDIRS}; do \
 		${MAKE} -C $${dir} clean; \
 	done
+
+.PHONY: lint
+lint:
+	golint ./...
+
