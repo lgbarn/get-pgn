@@ -1,14 +1,5 @@
 *.json
 *.pgn
-*.exe
 *.zip
 .vscode
 .idea/
-*/get-pgn.darwin
-*/get-pgn.linux
-*/get-pgn.exe
-*/get-pgn
-*/get-li-pgn.darwin
-*/get-li-pgn.linux
-*/get-li-pgn.exe
-*/get-li-pgn
