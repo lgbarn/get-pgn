@@ -1,26 +1,23 @@
 # Variable section
 GOBUILD=go build
-GOTGT=-o $@ .
-
-.PHONY: default
-default:
-	${GOBUILD} .
+BINDIR=../bin/
+GOTGT=-o $(BINDIR)$@ .
 
 .PHONY: all
-all: get-pgn.darwin get-pgn.linux get-pgn.exe
+all: $(BINDIR)get-pgn.darwin $(BINDIR)get-pgn.linux $(BINDIR)get-pgn.exe
 
-get-pgn.darwin: main.go
+$(BINDIR)get-pgn.darwin: main.go
 	GOOS=darwin ${GOBUILD} ${GOTGT}
 
-get-pgn.linux: main.go
+$(BINDIR)get-pgn.linux: main.go
 	GOOS=linux ${GOBUILD} ${GOTGT}
 
-get-pgn.exe: main.go
+$(BINDIR)get-pgn.exe: main.go
 	GOOS=windows ${GOBUILD} ${GOTGT}
 
 .PHONY: clean
 clean:
-	-rm -rf get-pgn get-pgn.darwin get-pgn.linux get-pgn.exe
+	-cd ../bin;rm -rf get-pgn get-pgn.darwin get-pgn.linux get-pgn.exe
 
 .PHONY: clean-all
 clean-all: clean
