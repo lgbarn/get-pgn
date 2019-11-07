@@ -121,7 +121,6 @@ func getPlayerData(CurrPlayer string) []byte {
 	return data
 }
 
-
 func main() {
 	var CurrPlayer string
 	var UseSingleFile bool
@@ -144,5 +143,3 @@ func main() {
 	getLastMonth = checkMonthsAvailable(getLastMonth, acr)
 	writePGNFiles(getLastMonth, acr, currFile, CurrPlayer, UseSingleFile)
 }
-
-
