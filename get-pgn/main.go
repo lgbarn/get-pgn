@@ -10,17 +10,17 @@ import (
 	"strings"
 )
 
-// define ArchiveReader interface
+// ArchiveReader interface
 type ArchiveReader interface {
 	getArchiveList() []string
 }
 
-// define ArchiveConstructor interface
+// ArchiveConstructor interface
 type ArchiveConstructer interface {
 	constructArchive(data []uint8)
 }
 
-// define ArchiveConstructorReader interface
+// ArchiveConstructorReader interface
 type ArchiveConstructorReader interface {
 	ArchiveConstructer
 	ArchiveReader
