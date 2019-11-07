@@ -10,14 +10,17 @@ import (
 	"strings"
 )
 
+// define ArchiveReader interface
 type ArchiveReader interface {
 	getArchiveList() []string
 }
 
+// define ArchiveConstructor interface
 type ArchiveConstructer interface {
 	constructArchive(data []uint8)
 }
 
+// define ArchiveConstructorReader interface
 type ArchiveConstructorReader interface {
 	ArchiveConstructer
 	ArchiveReader
@@ -28,7 +31,7 @@ type monthlyArchives struct {
 	Archives []string `json:"archives"`
 }
 
-// getArchiveList returns a list of achive links
+// getArchiveList returns a list of archive links
 func (ma *monthlyArchives) getArchiveList() []string {
 	return ma.Archives
 }
