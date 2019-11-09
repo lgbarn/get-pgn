@@ -2,15 +2,6 @@ PKGS := $( shell go list ./... | grep -v /vendor)
 SUBDIRS = get-li-pgn get-pgn
 
 
-.PHONY : test
-test: lint 
-	go test $(PKGS)
-
-.PHONY: lint
-lint: 
-	golint ./..
-
-
 .PHONY : default
 default: 
 	for dir in ${SUBDIRS}; do \

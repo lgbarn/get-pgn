@@ -1,5 +1,5 @@
 # Variable section
-BINARY := get-li-pgn
+BINARY := get-pgn
 .DEFAULT_GOAL := release
 PLATFORMS := windows linux darwin
 GOBUILD=go build
